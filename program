@@ -1,0 +1,421 @@
+//Implementacija pomoću polja
+#define max 1000
+using namespace std;
+
+struct tdata
+{
+    char Ime[20], Prezime[20];
+    tm DatumR;
+    float StanjeT, StanjeD;
+    int ai, bi, ci, di;
+    };
+     
+struct tlist
+{
+    tdata data[max];
+    int front, rear;
+    };
+     
+int AddOne(int n)
+{
+    return (( n + 1 ) % max);
+    }
+     
+bool IsEmptyQ (tlist *Q)
+{
+    if (AddOne (Q -> rear) == Q -> front)
+       return true;
+    return false;
+    }
+     
+tdata FrontQ (tlist *Q)
+{
+    if (IsEmptyQ (Q))
+                 cout << "Red je prazan." << endl;
+    else
+        return Q -> data[Q -> front];
+    }
+     
+void EnQueueQ(tdata x, tlist *Q)
+{
+    if (AddOne (AddOne (Q -> rear)) == Q -> front)
+    {
+               cout << "Red je pun!";
+               return;
+               }
+    Q -> rear = AddOne (Q -> rear);
+    Q -> data[Q -> rear] = x;
+    }
+     
+bool DeQueueQ (tlist *Q)
+{
+    if (IsEmptyQ (Q))
+       return false;
+    Q -> front = AddOne (Q -> front);
+    return true;
+    }
+     
+tlist* InitQ (tlist *Q)
+{
+    Q = new tlist;
+    Q -> rear = max - 1;
+    Q -> front = 0;
+    return Q;
+    }
+
+//Implemetacija pomocu pokazivaca
+using namespace std;
+
+struct tdata
+{
+    char Ime[20], Prezime[20];
+    tm DatumR;
+    float StanjeT, StanjeD;
+    int ai, bi, ci, di;
+    tdata *next;
+    };
+     
+struct tlist
+{
+    tdata *front;
+    tdata *rear;
+    };
+     
+bool IsEmptyQ (tlist *Q)
+{
+    if(Q -> front == Q -> rear)
+       return true;
+    return false;
+    }
+     
+tdata FrontQ (tlist *Q)
+{
+    if (Q -> rear != Q -> front)
+       return *(Q -> front -> next);
+    else
+        cout << "Red je prazan!" << endl;
+    }
+     
+void EnQueueQ(tdata x,tlist *Q)
+{
+    tdata *novi = new tdata;
+    memcpy(novi,&x,sizeof(tdata));
+    novi->next = NULL;
+    if (IsEmptyQ (Q))
+    {
+                    Q->front->next = novi;
+                    Q->rear = novi;
+    } 
+    else 
+    {
+         Q -> rear -> next = novi;
+         Q -> rear = novi;
+    }
+}
+     
+bool DeQueueQ(tlist *Q)
+{
+    tdata *brisi = new tdata;
+    if (Q -> rear != Q -> front)
+    {
+          brisi = Q -> front;
+          Q -> front = brisi -> next;
+          delete brisi;
+       }
+    else
+        cout << "Red je prazan!" << endl;
+    }
+     
+tlist* InitQ(tlist *Q)
+{
+    Q = new tlist;
+    Q -> front = new tdata;
+    Q -> front -> next = NULL;
+    Q -> rear = Q -> front;
+    return Q;
+    }
+// glavni program
+#include <iostream>
+#include <ctime>
+//#include "red_pok.cpp"
+#include "red_polje.cpp"
+
+using namespace std;
+tlist *red = InitQ (red);
+tlist *novi = InitQ (novi);
+int br;
+void unos_txt (char *niz)
+{
+     cin.getline (niz, 20);
+     if (cin.gcount () == 1)
+        cin.getline (niz, 20);
+ }
+void kopiraj (tlist *red1, tlist *red2)
+{
+     tdata trenutni;
+     tlist *pom = InitQ (pom);
+     while (!IsEmptyQ (red1))
+     {
+           trenutni = FrontQ (red1);
+           EnQueueQ (trenutni, pom);
+           EnQueueQ (trenutni, red2);
+           DeQueueQ (red1);
+           }
+     while (!IsEmptyQ (pom))
+     {
+           trenutni = FrontQ (pom);
+           EnQueueQ (trenutni, red1);
+           DeQueueQ (pom);
+           }
+ }
+void ispis (tlist *Red)
+{
+     tdata trenutni;
+     while (!IsEmptyQ (Red))
+     {
+           trenutni = FrontQ (Red);
+           cout << "Ime: " << trenutni.Ime << endl;
+           cout << "Prezime: " << trenutni.Prezime << endl;
+           cout << "Prioritet: " << trenutni.ci << endl;
+           cout << "Transakcija: " << trenutni.di << endl;
+           cout << "---------------------" << endl;
+           DeQueueQ (Red);
+           }
+ }
+void generiranje ()
+{
+     tdata trenutni;
+     cout << "--- Generiranje reda ---" << endl;
+     do
+     {
+                 cout << "Broj zapisa: ";
+                 cin >> br;
+                 if (br > 0)
+                    break;
+                 cout << "Pogresan unos." << endl;
+                 }while (1);
+     for (int I = 0; I < br; I++)
+     {
+         trenutni.ai = (rand () % 400) + 100;
+         trenutni.bi = (rand () % 400) + 100;
+         trenutni.ci = rand () % 5 + 1;
+         do
+         {
+                     trenutni.di = rand () % 3 + 1;
+                     if (!(trenutni.ci == 6 && (trenutni.di == 2 || trenutni.di == 4)))
+                        break;
+                     } while (1);
+         EnQueueQ (trenutni, red);
+     }
+ }
+void slozi (int p, tlist *sl, tlist *Red)
+{
+     tdata trenutni;
+     tlist *pom = InitQ (pom);
+     while (!IsEmptyQ (Red))
+     {
+           trenutni = FrontQ (Red);
+           if (trenutni.ci == p)
+              EnQueueQ (trenutni, sl);
+           EnQueueQ (trenutni, pom);
+           DeQueueQ (Red);
+           }
+     while (!IsEmptyQ (pom))
+     {
+           trenutni = FrontQ (pom);
+           EnQueueQ (trenutni, Red);
+           DeQueueQ (pom);
+           }
+ }
+void dodaj ()
+{
+     tlist *slozeni = InitQ (slozeni);
+     tdata trenutni;
+     int i;
+     for (int I = 1; I <= 6; I++)
+         slozi (I, slozeni, red);
+     red = InitQ (red);
+     while (!IsEmptyQ (slozeni))
+     {
+           trenutni = FrontQ (slozeni);
+           EnQueueQ (trenutni, red);
+           DeQueueQ (slozeni);
+           }
+     tlist *pom = InitQ (pom);
+     while (!IsEmptyQ (red))
+     {
+           trenutni = FrontQ (red);
+           cout << "\nKlijent: " << endl;
+           cout << "Prioriteta: " << trenutni.ci << endl;
+           cout << "Transakcija broj: " << trenutni.di << endl;
+           cout << "--- U N O S ---" << endl;
+           cout << "Unesite ime: ";
+           unos_txt (trenutni.Ime);
+           cout << "Unesite prezime: ";
+           unos_txt (trenutni.Prezime);
+           cout << "Datum rodjenja: " << endl;
+           do
+           {
+              cout << "\tMjesec: ";
+              cin >> trenutni.DatumR.tm_mon;
+              if (!(trenutni.DatumR.tm_mon < 1 || trenutni.DatumR.tm_mon > 12))
+                 break;
+              cout << "Pogresan unos!" << endl;
+              }while(1);
+           do
+           {
+              cout << "\tDan: ";
+              cin >> trenutni.DatumR.tm_mday;
+              if (trenutni.DatumR.tm_mon == 1 || trenutni.DatumR.tm_mon == 3 || trenutni.DatumR.tm_mon == 5 || 
+                  trenutni.DatumR.tm_mon == 7 || trenutni.DatumR.tm_mon == 8 || trenutni.DatumR.tm_mon == 10 || trenutni.DatumR.tm_mon == 12)
+                  if (!(trenutni.DatumR.tm_mday < 0 || trenutni.DatumR.tm_mday > 31))
+                      break;
+              if (trenutni.DatumR.tm_mon == 4 || trenutni.DatumR.tm_mon == 6 || trenutni.DatumR.tm_mon == 9 || trenutni.DatumR.tm_mon == 11)
+                  if (!(trenutni.DatumR.tm_mday < 0 || trenutni.DatumR.tm_mday > 30))
+                      break;
+              if (trenutni.DatumR.tm_mon == 2)
+                  if (!(trenutni.DatumR.tm_mday < 0 || trenutni.DatumR.tm_mday > 29))
+                      break;
+              cout << "Pogresan unos!" << endl;
+           } while(1);
+           do
+           {
+                cout << "\tGodina: (1900. - 2050.) ";
+                cin >> trenutni.DatumR.tm_year;
+                if (!(trenutni.DatumR.tm_year <= 1900 || trenutni.DatumR.tm_year >= 2050))
+                   break;
+                cout << "Pogresan unos." << endl;
+           }while(1);
+           cout << "Unesite stanje na tekucem racunu: ";
+           cin >> trenutni.StanjeT;
+           cout << "Unesite stanje na deviznom racunu (EUR): ";
+           cin >> trenutni.StanjeD;
+           EnQueueQ (trenutni, pom);
+           DeQueueQ (red);
+     }
+     cout << "-----------------------------" << endl;
+     cout << "Klijenti koji na racunu imaju vise od 10.000,00 kn u stranoj valuti." << endl;
+     while (!IsEmptyQ (pom))
+     {
+           trenutni = FrontQ (pom);
+           EnQueueQ (trenutni, red);
+           if ((trenutni.StanjeD * 7.30) > 10000)
+           {
+               cout << "Ime: " << trenutni.Ime << endl;
+               cout << "Prezime: " << trenutni.Prezime << endl;
+               cout << "Stanje na deviznom racunu u kunama: " << trenutni.StanjeD * 7.30 << endl;
+               }
+           DeQueueQ (pom);
+           }
+}
+void brzi_red ()
+{
+    tlist *brzi = InitQ (brzi);
+    tlist *pom = InitQ (pom);
+    tdata trenutni;
+    while (!IsEmptyQ (red)) 
+    {
+          trenutni = FrontQ (red);
+          if (trenutni.di != 3)
+             EnQueueQ (trenutni, pom);
+          else
+              EnQueueQ (trenutni, brzi);
+          DeQueueQ (red);
+          }
+    red = pom;
+    tlist *slozeni = InitQ (slozeni);
+    for (int I = 1; I <= 6; I++)
+         slozi (I, slozeni, red);
+     red = InitQ (red);
+     kopiraj (slozeni, red);
+     tlist *slozen = InitQ (slozen);
+     for (int I = 1; I <= 6; I++)
+         slozi (I, slozen, brzi);
+     brzi = InitQ (brzi);
+     kopiraj (slozen, brzi);
+     pom = InitQ (pom);
+     cout << "\n--- Brzi red ----" << endl;
+     kopiraj (brzi, pom);
+     ispis (pom);
+     pom = InitQ (pom);
+     cout << "\n--- Glavni red ---" << endl;
+     kopiraj (red, pom);
+     ispis (pom);
+ }
+ void vip_umi ()
+ {
+      tlist *pom = InitQ (pom);
+      tdata trenutni;
+      while (!IsEmptyQ (red))
+      {
+            trenutni = FrontQ (red);
+            if (!((trenutni.ci == 4 && trenutni.di == 1 && trenutni.DatumR.tm_year > 1988 && trenutni.StanjeT < 100)
+                 || (trenutni.ci == 1 && trenutni.di == 1 && trenutni.StanjeT > 5000)))
+                 EnQueueQ (trenutni, pom);
+            DeQueueQ (red);           
+            }
+      red = InitQ (red);
+      kopiraj (pom, red);
+      ispis (red);
+  }
+void novi_salter (int broj, tlist *red)
+{
+     tdata trenutni;
+     int p = (int) (br * 0.3);
+     if (IsEmptyQ (red))
+        return;
+     else
+     {
+         trenutni = FrontQ (red);
+         DeQueueQ (red);
+         novi_salter (++broj, red);
+         if (broj > br - p)
+            EnQueueQ (trenutni, novi);
+         else
+             EnQueueQ (trenutni, red);
+     }
+ }
+int main ()
+{
+    generiranje ();
+    tlist *pom = InitQ (pom);
+    srand (time (0));
+    int izbor;
+    do
+    {
+                cout << "--- I Z B O R ---" << endl;
+                cout << "1) Dodavanje zapisa o klijentima." << endl;
+                cout << "2) Red brzih transakcija." << endl;
+                cout << "3) Obrisi VIP i umirovljene klijente." << endl;
+                cout << "4) Otvaranje novog saltera." << endl;
+                cout << "9) Izlaz." << endl;
+                cin >> izbor;
+                switch (izbor)
+                {
+                       case 1:
+                            dodaj ();
+                            break;
+                       case 2:
+                            brzi_red ();
+                            break;
+                       case 3:
+                            vip_umi ();
+                            break;
+                       case 4:
+                            novi = InitQ (novi);
+                            novi_salter (1, red);
+                            cout << "*** Glavni red ***" << endl;
+                            kopiraj (red, pom);
+                            ispis (pom);
+                            cout << "*** Novi red ***" << endl;
+                            pom = InitQ (pom);
+                            kopiraj (novi, pom);
+                            ispis (pom);
+                            break;
+                       case 9:
+                            break;
+                       default:
+                               cout << "Pogresan unos." << endl;
+                       }
+    } while (izbor != 9);
+}
